@@ -1,46 +1,58 @@
-# Getting Started with Create React App
+# Redux saga note
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app), using the [Redux](https://redux.js.org/) and [Redux Toolkit](https://redux-toolkit.js.org/) TS template.
 
-## Available Scripts
+## Phân biệt Effect vs Effect Creator
+   ### Effect :
+      Là một javascript object có chứa thông tin để saga middleware biết cần phải làm
 
-In the project directory, you can run:
+   ### Effect Creator :
+      - Là một function trả về một Effect. Và nó ko thực thi cái Effect này, người thực thi là
+         saga middlewar
 
-### `npm start`
+      - Các hàm dùng trong Redux Saga: takeEvery, takeLatest, ... đây là những Effect Creator.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Effect Creator  => Trả về effect chứa thông tin giúp middleware biết phải làm gì
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### `takeEvery(pattern, saga,..args)`
 
-### `npm test`
+Chạy saga mỗi khi có action  `pattern` được dispatch, dispatch bao nhiêu sẽ chạy bấy nhiêu saga
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### `takeLastes(pattern, saga,..args)`
 
-### `npm run build`
+Chạy `saga` nhưng mỗi khi có action `pattern` mới được dispatch, thì cái `saga trước đó` sẽ bị `cancel`
+=> lấy thằng cuối
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### `takeLeading(pattern, saga,..args)`
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Chạy `saga` khi action `pattern` được dispatch, những action tiếp theo sẽ bị cancel cho đến khi action trước đó chạy xong
+=> lấy thằng đầu
+### `put(action)`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Dispatch action từ saga
 
-### `npm run eject`
+### `call(fn,...args)`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+gọi hàm `fn` và truyền tham số `args` vào hàm đó
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### `all([...effects])`
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+Chạy tất cả effects cùng một lúc
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+### `take(pattern)` and `fork(fn,...args)`
 
-## Learn More
+Mô hình watcher, ...worker, đợi dispatch action `pattern` sẽ thực hiện một cái task nào đó
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### `throttle(ms, pattern, saga,...args)` 
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+throttle cái action `pattern`, `đảm bảo chỉ chạy saga 1 lần` trong khoảng thời gian `ms`
+
+### `debounce(ms, pattern, saga,...args)` 
+
+debounce cái action `pattern`, `đảm bảo chỉ chạy saga 1 lần` sau khi đã đợi  khoảng thời gian `ms`
+
+### `retry(maxTries, delay, fn,...args)` 
+
+Cố gắng gọi lại hàm `fn` nếu failed, sau mỗi lần `delay` milliseconds, và tối đa chỉ thử `maxTries` lần
+
+
+
